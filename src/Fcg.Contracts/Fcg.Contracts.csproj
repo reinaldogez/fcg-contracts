@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- empacotamento -->
+    <PackageId>Fcg.Contracts</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>reinaldogez</Authors>
+    <Description>Contratos de evento de integração compartilhados entre os serviços do FCG (FIAP Cloud Games).</Description>
+    <RepositoryUrl>https://github.com/reinaldogez/fcg-contracts</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+</Project>
