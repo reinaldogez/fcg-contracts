@@ -37,10 +37,6 @@ jobs:
     permissions:
       contents: read
       packages: read
-    env:
-      # NuGet lê as credenciais do source 'github-fcg' desta env var.
-      # O hífen do nome do source vira underscore: github-fcg -> github_fcg.
-      NuGetPackageSourceCredentials_github_fcg: Username=${{ github.actor }};Password=${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4          # traz o nuget.config (source github-fcg)
       - uses: actions/setup-dotnet@v4
@@ -51,6 +47,13 @@ jobs:
           dotnet new classlib -f net10.0 -o consumer
           cp "$GITHUB_WORKSPACE/nuget.config" consumer/nuget.config
           cd consumer
+          # Autentica o source github-fcg com o GITHUB_TOKEN do runner.
+          # Clear-text só neste nuget.config efêmero do runner — nunca no versionado.
+          dotnet nuget update source github-fcg \
+            --username "${{ github.actor }}" \
+            --password "${{ secrets.GITHUB_TOKEN }}" \
+            --store-password-in-clear-text \
+            --configfile nuget.config
           dotnet add package Fcg.Contracts --version 1.0.0
           dotnet build -c Release
       - name: Smoke de compilação contra o tipo
