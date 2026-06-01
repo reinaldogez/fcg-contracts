@@ -29,3 +29,44 @@ jobs:
             --source "https://nuget.pkg.github.com/reinaldogez/index.json" \
             --api-key ${{ secrets.GITHUB_TOKEN }} \
             --skip-duplicate
+
+  verify-restore-with-runner-token:
+    needs: publish
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    env:
+      # NuGet lê as credenciais do source 'github-fcg' desta env var.
+      # O hífen do nome do source vira underscore: github-fcg -> github_fcg.
+      NuGetPackageSourceCredentials_github_fcg: Username=${{ github.actor }};Password=${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4          # traz o nuget.config (source github-fcg)
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '10.0.x' }
+      - name: Projeto descartável + restore com token do runner
+        run: |
+          mkdir -p /tmp/g1 && cd /tmp/g1
+          dotnet new classlib -f net10.0 -o consumer
+          cp "$GITHUB_WORKSPACE/nuget.config" consumer/nuget.config
+          cd consumer
+          dotnet add package Fcg.Contracts --version 1.0.0
+          dotnet build -c Release
+      - name: Smoke de compilação contra o tipo
+        run: |
+          cd /tmp/g1/consumer
+          cat > Smoke.cs <<'EOF'
+          using Fcg.Contracts.Events;
+          public static class Smoke
+          {
+              public static UserCreatedEvent Build() => new()
+              {
+                  UserId = System.Guid.NewGuid(),
+                  Name = "x",
+                  Email = "x@x",
+                  OccurredAt = System.DateTimeOffset.UtcNow
+              };
+          }
+          EOF
+          dotnet build -c Release

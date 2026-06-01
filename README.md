@@ -29,8 +29,12 @@ E adicione o pacote:
 dotnet add package Fcg.Contracts
 ```
 
-O feed é **público**: o restore é **anônimo**, sem necessidade de `packageSourceCredentials` nem de
-login no GHCR.
+O feed do GitHub Packages **exige autenticação mesmo para package público** — o package precisa estar
+público **e** o consumidor precisa de um token com escopo `read:packages`. Em **CI (GitHub Actions)** o
+restore usa o `GITHUB_TOKEN` do runner (`permissions: packages: read`), sem PAT. Em **build local**,
+configure um PAT com `read:packages` no `nuget.config` *user-level* (`dotnet nuget add source ... --username
+<seu-usuário> --password <PAT> --store-password-in-clear-text`) ou via variável de ambiente — **nunca**
+comite o PAT no `nuget.config` versionado.
 
 Uso típico do contrato:
 
@@ -45,19 +49,6 @@ var evt = new UserCreatedEvent
     OccurredAt = DateTimeOffset.UtcNow
 };
 ```
-
-## ⚠️ Passo manual: tornar o package público
-
-O package nasce **privado** no GitHub Packages após o primeiro publish. Enquanto ele estiver
-privado, **o restore anônimo (`dotnet add package`) falha** para qualquer consumidor.
-
-Após o primeiro publish bem-sucedido, é necessário, **uma única vez**:
-
-> GitHub → **Packages** → `Fcg.Contracts` → **Package settings** → **Change visibility** →
-> **Public**
-
-Confirme o badge **Public** na página do package. Sem este passo, o job de validação anônima do CI
-e o consumo pelos serviços não funcionam.
 
 ## Versionamento
 
