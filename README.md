@@ -32,9 +32,28 @@ dotnet add package Fcg.Contracts
 O feed do GitHub Packages **exige autenticação mesmo para package público** — o package precisa estar
 público **e** o consumidor precisa de um token com escopo `read:packages`. Em **CI (GitHub Actions)** o
 restore usa o `GITHUB_TOKEN` do runner (`permissions: packages: read`), sem PAT. Em **build local**,
-configure um PAT com `read:packages` no `nuget.config` *user-level* (`dotnet nuget add source ... --username
-<seu-usuário> --password <PAT> --store-password-in-clear-text`) ou via variável de ambiente — **nunca**
-comite o PAT no `nuget.config` versionado.
+configure um PAT com `read:packages` no `nuget.config` *user-level* — o PAT não deve ser commitado no
+`nuget.config` versionado.
+
+Como a fonte `github-fcg` já existe no `nuget.config` deste repo, use `update source` para anexar a
+credencial a ela (`--username` é o seu login do GitHub; o que autentica de fato é o PAT em `--password`):
+
+```powershell
+dotnet nuget update source github-fcg `
+  --username <seu-usuário-do-github> `
+  --password <PAT> `
+  --store-password-in-clear-text
+```
+
+Se a fonte ainda não existir no seu ambiente, use `add source` informando também a URL do feed:
+
+```powershell
+dotnet nuget add source https://nuget.pkg.github.com/reinaldogez/index.json `
+  --name github-fcg `
+  --username <seu-usuário-do-github> `
+  --password <PAT> `
+  --store-password-in-clear-text
+```
 
 Uso típico do contrato:
 
