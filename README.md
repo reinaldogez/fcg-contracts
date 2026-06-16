@@ -5,8 +5,17 @@ Pacote NuGet de **contratos de evento de integração** compartilhados entre os 
 runtime, sem topologia de transporte (exchange/fila vivem na configuração de bus de cada serviço).
 
 - **TargetFramework:** `net10.0`
-- **PackageId:** `Fcg.Contracts` · **namespace:** `Fcg.Contracts.Events`
+- **PackageId:** `Fcg.Contracts` · **namespaces:** `Fcg.Contracts.Events` (eventos) · `Fcg.Contracts.Enums` (enums de apoio)
 - **Feed:** GitHub Packages (GHCR) de `reinaldogez`
+
+## Contratos disponíveis
+
+| Contrato | Publicado por | Consumido por | Notas |
+|----------|---------------|---------------|-------|
+| `UserCreatedEvent` | `fcg-identity` | `fcg-notifications` | usuário criado |
+| `OrderPlacedEvent` | `fcg-catalog` | `fcg-payments` | pedido pendente; carrega `GameName`/`Price` (fat event) |
+| `PaymentProcessedEvent` | `fcg-payments` | `fcg-catalog`, `fcg-notifications` | resultado do pagamento; traz `PaymentId`, `Status` (`PaymentStatus`) e `RejectionReason?` |
+| `PaymentStatus` (enum) | — | — | `Approved = 1`, `Rejected = 2` |
 
 ## Como consumir
 
@@ -66,6 +75,30 @@ var evt = new UserCreatedEvent
     Name = "Ada Lovelace",
     Email = "ada@example.com",
     OccurredAt = DateTimeOffset.UtcNow
+};
+```
+
+Eventos que usam enums de apoio trazem também o namespace `Fcg.Contracts.Enums`.
+Por exemplo, o `PaymentProcessedEvent` carrega o `PaymentStatus` e o
+`RejectionReason` anulável (presente só quando `Rejected`):
+
+```csharp
+using Fcg.Contracts.Events;
+using Fcg.Contracts.Enums;
+
+var evt = new PaymentProcessedEvent
+{
+    OccurredAt = DateTimeOffset.UtcNow,
+    PaymentId = Guid.NewGuid(),
+    OrderId = Guid.NewGuid(),
+    UserId = Guid.NewGuid(),
+    UserEmail = "ada@example.com",
+    UserName = "Ada Lovelace",
+    GameId = Guid.NewGuid(),
+    GameName = "Half-Life",
+    Price = 49.90m,
+    Status = PaymentStatus.Rejected,
+    RejectionReason = "Cartão recusado"
 };
 ```
 
