@@ -54,21 +54,51 @@ jobs:
             --password "${{ secrets.GITHUB_TOKEN }}" \
             --store-password-in-clear-text \
             --configfile nuget.config
-          dotnet add package Fcg.Contracts --version 1.0.0
+          dotnet add package Fcg.Contracts --version 1.1.0
           dotnet build -c Release
       - name: Smoke de compilação contra o tipo
         run: |
           cd /tmp/g1/consumer
           cat > Smoke.cs <<'EOF'
           using Fcg.Contracts.Events;
+          using Fcg.Contracts.Enums;
           public static class Smoke
           {
-              public static UserCreatedEvent Build() => new()
+              public static UserCreatedEvent BuildUser() => new()
               {
                   UserId = System.Guid.NewGuid(),
                   Name = "x",
                   Email = "x@x",
                   OccurredAt = System.DateTimeOffset.UtcNow
+              };
+
+              public static OrderPlacedEvent BuildOrder() => new()
+              {
+                  EventVersion = 1,
+                  OccurredAt = System.DateTimeOffset.UtcNow,
+                  OrderId = System.Guid.NewGuid(),
+                  UserId = System.Guid.NewGuid(),
+                  UserEmail = "x@x",
+                  UserName = "x",
+                  GameId = System.Guid.NewGuid(),
+                  GameName = "g",
+                  Price = 9.99m
+              };
+
+              public static PaymentProcessedEvent BuildPayment() => new()
+              {
+                  EventVersion = 1,
+                  OccurredAt = System.DateTimeOffset.UtcNow,
+                  PaymentId = System.Guid.NewGuid(),
+                  OrderId = System.Guid.NewGuid(),
+                  UserId = System.Guid.NewGuid(),
+                  UserEmail = "x@x",
+                  UserName = "x",
+                  GameId = System.Guid.NewGuid(),
+                  GameName = "g",
+                  Price = 9.99m,
+                  Status = PaymentStatus.Approved,
+                  RejectionReason = null
               };
           }
           EOF

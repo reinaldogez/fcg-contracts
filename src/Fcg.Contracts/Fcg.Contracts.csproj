@@ -7,7 +7,7 @@
 
     <!-- empacotamento -->
     <PackageId>Fcg.Contracts</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>reinaldogez</Authors>
     <Description>Contratos de evento de integração compartilhados entre os serviços do FCG (FIAP Cloud Games).</Description>
     <RepositoryUrl>https://github.com/reinaldogez/fcg-contracts</RepositoryUrl>

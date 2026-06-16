@@ -1,0 +1,14 @@
+namespace Fcg.Contracts.Events;
+
+public record OrderPlacedEvent
+{
+    public int EventVersion { get; init; } = 1;
+    public DateTimeOffset OccurredAt { get; init; }
+    public Guid OrderId { get; init; }
+    public Guid UserId { get; init; }
+    public string UserEmail { get; init; } = string.Empty;
+    public string UserName { get; init; } = string.Empty;
+    public Guid GameId { get; init; }
+    public string GameName { get; init; } = string.Empty;
+    public decimal Price { get; init; }
+}
